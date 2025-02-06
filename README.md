@@ -180,6 +180,21 @@ AWS manages encryption - **default**
       for each table and secondary index that was accessed.
     - `TOTAL` - The response includes only the aggregate ConsumedCapacity for the operation.
     - `NONE` - No ConsumedCapacity details are included in the response.
+- Condition keys:
+    - `dynamodb:Attributes` - Filters access by attribute (field or column) names of the table
+    - `dynamodb:LeadingKeys` - Filters access by the partition key of the table
+    - `dynamodb:ReturnValues` - Filters access by the ReturnValues parameter of request. Contains one of the
+      following: "ALL_OLD", "UPDATED_OLD","ALL_NEW","UPDATED_NEW", or "NONE"
+    - `dynamodb:Select` - Filters access by the Select parameter of a Query or Scan request
+- DAX - solves **hot key** problem. In-memory cache for DynamoDB. Does not require any changes in application. 5 min TTL
+  by default. SECURE.
+    - vs. Elasticache: DAX used for individual objects cache, query + scan. Elasticache: store aggregation result, e.g.
+      SUM, TOTAL, etc.
+- StreamViewType:
+    - `KEYS_ONLY` - Only the key attributes of the modified item are written to the stream.
+    - `NEW_IMAGE` - The entire item, as it appears after it was modified, is written to the stream.
+    - `OLD_IMAGE` - The entire item, as it appeared before it was modified, is written to the stream.
+    - `NEW_AND_OLD_IMAGES` - Both the new and the old item images of the item are written to the stream.
 
 # Kinesis
 
@@ -204,24 +219,31 @@ AWS manages encryption - **default**
     - parameter-based - receive the caller's identity via headers, query strings, etc.
 - Max timeout is 15 minutes
 - the **unreserved concurrency** pool at a minimum of 100 concurrent executions so that functions that do not have
-  specific
-  limits set can still process requests. So, in practice, if your total account limit is 1000, you are limited to
+  specific limits set can still process requests. So, in practice, if your total account limit is 1000, you are limited
+  to
   allocating 900 to individual functions.
+- `FunctionUrlAuthType` - you can control access to Lambda Function Url:
+    - `AWS_IAM` - Lambda uses AWS Identity and Access Management (IAM) to authenticate and authorize requests based on
+      the IAM principal's identity policy and the function's resource-based policy. **Choose this option if you want
+      only
+      authenticated users and roles to invoke your function via the function URL.**
+    - `NONE` - Lambda doesn't perform any authentication before invoking your function. However, your function's
+      resource-based policy is always in effect and must grant public access before your function URL can receive
+      requests. **Choose this option to allow public, unauthenticated access to your function URL.**
 
 # X-Ray
 
 - To properly instrument your application hosted in an EC2 instance, you have to install the X-Ray daemon by using a
-  user data script. To use the daemon
-  on Amazon EC2, create a new instance profile role or add the managed policy to an existing one.
+  user data script. To use the daemon on Amazon EC2, create a new instance profile role or add the managed policy to an
+  existing one.
 - **Annotations**: key-value pairs to add user-specific custom attributes to your trace data. **They are indexed** and *
-  *can
-  be used for queries** using filter expressions. You can use annotations to provide more context to your searches and
+  *can be used for queries** using filter expressions. You can use annotations to provide more context to your searches
+  and
   create groups. By adding these custom attributes as annotations, you can use filter expressions to limit the returned
   results based on these attributes. You can use them to group traces within the console or when you call the
   GetTraceSummaries API.
 - **Metadata**: key-value pairs that are **not indexed**. The values can be of any type and comprise objects and lists.
-  You
-  can use metadata to record additional data to store in your traces but **do not require it for searches**.
+  You can use metadata to record additional data to store in your traces but **do not require it for searches**.
 - **Segments**:Segments provide detailed information about the requests made in your traces, including host IP, start
   and end times, duration, and request methods such as POST and GET requests. Segments also allow you to identify any
   issue such as errors, faults and exceptions. In the following screenshot, you can see a typical segment detail for a
@@ -229,6 +251,19 @@ AWS manages encryption - **default**
 - **SubSegments**:more granular details of segments and details of any downstream calls the application makes to serve
   those requests. These can contain details such as calls to an AWS service, databases, or APIs. Some services, such as
   DynamoDB, don’t send their own segments. Here, subsegments can be used to generate inferred segments for such services
+
+
+- Lambda environment variables for X-RAY:
+    - _`X_AMZN_TRACE_ID`: Contains the tracing header, which includes the sampling decision, trace ID, and parent
+      segment ID. If Lambda receives a tracing header when your function is invoked, that header will be used to
+      populate the _
+      X_AMZN_TRACE_ID environment variable. If a tracing header was not received, Lambda will generate one for you.
+    - `AWS_XRAY_CONTEXT_MISSING`: The X-Ray SDK uses this variable to determine its behavior in the event that your
+      function tries to record X-Ray data, but a tracing header is not available. Lambda sets this value to LOG_ERROR by
+      default.
+    - `AWS_XRAY_DAEMON_ADDRESS`: This environment variable exposes the X-Ray daemon’s address in the following format:
+      IP_ADDRESS:PORT. You can use the X-Ray daemon’s address to send trace data to the X-Ray daemon directly without
+      using the X-Ray SDK.
 
 # Athena
 
@@ -262,6 +297,22 @@ AWS manages encryption - **default**
     - `HTTP_PROXY` - Allows a client to access the backend HTTP endpoints with a streamlined
       integration setup on single API method. You do not set the integration request or the integration response.
     - `MOCK` - Lets API Gateway return a response without sending the request further to the backend
+- Multi-value headers:
+    - Additional `multiValueQueryStringParameters` and `multiValueHeaders`
+    - E.g.:
+      `"multiValueQueryStringParameters": { "myKey": ["val1", "val2"] },`
+    - You have multiple _cookie_ headers:
+      `    
+                 "cookie": "name1=value1",
+                  "cookie": "name2=value2",
+          `\
+      As a result:
+    ```json 
+     "multiValueHeaders": {
+     "cookie": ["name1=value1", "name2=value2"],
+     ...
+     },
+  ```
 
 # CloudFormation
 
@@ -272,3 +323,28 @@ AWS manages encryption - **default**
       stack when the prerequisite resource or application is ready.
     - `cfn-get-metadata` – Use to retrieve metadata for a resource or path to a specific key.
     - `cfn-hup` – Use to check for updates to metadata and execute custom hooks when changes are detected.
+
+# CDK
+
+- How to test what will be created locally?: `cdk init app --language typescript` + `cdk synth --no-staging`
+
+# BeanStalk
+
+- Deployment strategies:
+    - All-at-once - Performs in place deployment on all instances.
+    - Rolling — Splits the instances into batches and deploys to one batch at a time.
+    - Rolling with additional batch - Splits the deployments into batches but for the first batch creates new EC2
+      instances instead of deploying on the existing EC2 instances.
+    - Immutable — If you need to deploy with a new instance instead of using an existing instance. (Auto scalling
+      groups)
+    - Traffic splitting — Performs immutable deployment and then forwards percentage of traffic to the new instances for
+      a
+      pre-determined duration of time. If the instances stay healthy, then forward all traffic to new instances and shut
+      down old instances.
+- Config files:
+    - `.ebextensions` folder at the root folder
+
+# Tricky questions
+
+- You got an encoded error message, how to decode it?
+    - `aws sts decode-authorization-message --encoded-message
