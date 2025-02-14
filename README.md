@@ -338,11 +338,26 @@ AWS manages encryption - **default**
     - Immutable — If you need to deploy with a new instance instead of using an existing instance. (Auto scalling
       groups)
     - Traffic splitting — Performs immutable deployment and then forwards percentage of traffic to the new instances for
-      a
-      pre-determined duration of time. If the instances stay healthy, then forward all traffic to new instances and shut
+      a pre-determined duration of time. If the instances stay healthy, then forward all traffic to new instances and shut
       down old instances.
 - Config files:
     - `.ebextensions` folder at the root folder
+
+# Troubleshooting and Optimization
+
+## API Gateway + Lambda -> returns 504 error code.
+
+* INTEGRATION_TIMEOUT of API Gateway — because there is a timeout maximum value for all integration types: **29 seconds**. P.s. AWS now supports increasing
+  it: https://aws.amazon.com/about-aws/whats-new/2024/06/amazon-api-gateway-integration-timeout-limit-29-seconds/
+* INTEGRATION_FAILURE — if integration does not work
+
+## How to capture information about the IP traffic going to and from network interfaces in your VPC
+
+* Use flow log in your VPC.
+
+# Cloudwatch
+
+* It does not track memory utilization by default. It is recommended to create a custom metric to do it.
 
 # Tricky questions
 
