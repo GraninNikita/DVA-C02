@@ -195,6 +195,7 @@ AWS manages encryption - **default**
     - `NEW_IMAGE` - The entire item, as it appears after it was modified, is written to the stream.
     - `OLD_IMAGE` - The entire item, as it appeared before it was modified, is written to the stream.
     - `NEW_AND_OLD_IMAGES` - Both the new and the old item images of the item are written to the stream.
+- DynamoDB Streams is subject to a 24-hour lifetime
 
 # Kinesis
 
@@ -230,6 +231,7 @@ AWS manages encryption - **default**
     - `NONE` - Lambda doesn't perform any authentication before invoking your function. However, your function's
       resource-based policy is always in effect and must grant public access before your function URL can receive
       requests. **Choose this option to allow public, unauthenticated access to your function URL.**
+- `Unable to import module` error - Install the missing modules locally to your application’s folder. Package the folder into a ZIP file and upload it to AWS Lambda.
 
 # X-Ray
 
@@ -252,18 +254,23 @@ AWS manages encryption - **default**
   those requests. These can contain details such as calls to an AWS service, databases, or APIs. Some services, such as
   DynamoDB, don’t send their own segments. Here, subsegments can be used to generate inferred segments for such services
 
-
 - Lambda environment variables for X-RAY:
     - _`X_AMZN_TRACE_ID`: Contains the tracing header, which includes the sampling decision, trace ID, and parent
       segment ID. If Lambda receives a tracing header when your function is invoked, that header will be used to
-      populate the _
-      X_AMZN_TRACE_ID environment variable. If a tracing header was not received, Lambda will generate one for you.
+      populate the _X_AMZN_TRACE_ID_ environment variable. If a tracing header was not received, Lambda will generate one for you.
     - `AWS_XRAY_CONTEXT_MISSING`: The X-Ray SDK uses this variable to determine its behavior in the event that your
       function tries to record X-Ray data, but a tracing header is not available. Lambda sets this value to LOG_ERROR by
       default.
     - `AWS_XRAY_DAEMON_ADDRESS`: This environment variable exposes the X-Ray daemon’s address in the following format:
       IP_ADDRESS:PORT. You can use the X-Ray daemon’s address to send trace data to the X-Ray daemon directly without
       using the X-Ray SDK.
+- To enable X-Ray for app deployed in Elastic Beanstalk, include xray-daemon.config configuration file in the .ebextensions
+- `GetTraceSummaries` - Retrieves IDs and annotations for traces available
+- `BatchGetTraces` - Retrieves a list of traces specified by ID
+- If a load balancer or other intermediary forwards a request to your application, X-Ray takes the client IP from the `X-Forwarded-For` header in the request instead of
+  from the source IP in the IP packet. The client IP that is recorded for a forwarded request can be forged, so it should not be trusted.
+- `AWSXRayDaemonWriteAccess` role Elastic Beanstalk uses it for the X-Ray daemon to upload data to X-Ray
+- listens for traffic on **UDP port 2000**
 
 # Athena
 
@@ -363,3 +370,4 @@ AWS manages encryption - **default**
 
 - You got an encoded error message, how to decode it?
     - `aws sts decode-authorization-message --encoded-message
+- AWS WAF - service to protect against common web exploits and bots that can affect availability, compromise security, or consume excessive resources.
