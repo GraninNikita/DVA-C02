@@ -184,7 +184,7 @@ AWS manages encryption - **default**
     - `dynamodb:Attributes` - Filters access by attribute (field or column) names of the table
     - `dynamodb:LeadingKeys` - Filters access by the partition key of the table
     - `dynamodb:ReturnValues` - Filters access by the ReturnValues parameter of request. Contains one of the
-      following: "ALL_OLD", "UPDATED_OLD","ALL_NEW","UPDATED_NEW", or "NONE"
+      following: "ALL_OLD", "UPDATED_OLD", "ALL_NEW", "UPDATED_NEW", or "NONE"
     - `dynamodb:Select` - Filters access by the Select parameter of a Query or Scan request
 - DAX - solves **hot key** problem. In-memory cache for DynamoDB. Does not require any changes in application. 5 min TTL
   by default. SECURE.
@@ -296,9 +296,7 @@ AWS manages encryption - **default**
     - `AWS_PROXY` - Lets an API method be integrated with the Lambda function invocation action with a flexible,
       versatile, and streamlined integration setup. This integration relies on direct interactions between the client
       and the integrated Lambda function. Also known as the **Lambda proxy integration**, you do not set the integration
-      request or the
-      integration response. API Gateway passes the incoming request from the client as the input to the backend Lambda
-      function.
+      request or the integration response. API Gateway passes the incoming request from the client as the input to the backend Lambda function.
     - `HTTP` - Lets an API expose HTTP endpoints in the backend. Also known as the HTTP
       custom integration, you must configure both the integration request and integration response.
     - `HTTP_PROXY` - Allows a client to access the backend HTTP endpoints with a streamlined
@@ -330,6 +328,36 @@ AWS manages encryption - **default**
       stack when the prerequisite resource or application is ready.
     - `cfn-get-metadata` – Use to retrieve metadata for a resource or path to a specific key.
     - `cfn-hup` – Use to check for updates to metadata and execute custom hooks when changes are detected.
+- drift detection - allows to detect the changes on resources comparing to the initial configuration of the stack
+
+# SAM
+
+* Types:
+    * API — Creates a collection of Amazon API Gateway resources
+    * Application — Embeds a serverless application from the AWS Serverless Application Repository or from an Amazon S3 bucket as a nested application.
+    * Connector — Configures permissions between two resources.
+    * Function — Creates an AWS Lambda function, an AWS Identity and Access Management (IAM) execution role, and event source mappings that trigger the function.
+    * GraphQLApi - create and configure an AWS AppSync GraphQL API for your serverless application.
+    * HttpApi - Creates an Amazon API Gateway HTTP API, which enables you to create RESTful APIs with lower latency and lower costs than REST API
+    * LayerVersion — Creates a Lambda LayerVersion that contains library or runtime code needed by a Lambda Function
+    * SimpleTable — Creates a DynamoDB table with a single attribute primary key. It is useful when data only needs to be accessed via a primary key.
+    * StateMachine - Creates an AWS Step Functions state machine, which you can use to orchestrate AWS Lambda functions and other AWS resources to form complex and robust
+      workflows.
+* Local testing strategy: SAM CLI. Supports local invocation and testing
+    * `sam package` - creates a deployment package and uploads it to S3
+    * `sam deploy` - deploys template into CF stack
+* Using DeploymentPreference to enable gradual Lambda deployments.
+    *   ```
+      Alarms: List
+      Enabled: Boolean
+      Hooks: Hooks
+      PassthroughCondition: Boolean
+      Role: String
+      TriggerConfigurations: List
+      Type: String
+      ```
+    * Alarms — A list of CloudWatch alarms that you want to be triggered by any errors raised by the deployment.
+    * Hooks — Validation Lambda functions that are run before and after traffic shifting
 
 # CDK
 
@@ -366,8 +394,22 @@ AWS manages encryption - **default**
 
 * It does not track memory utilization by default. It is recommended to create a custom metric to do it.
 
+# S3
+* aws s3api list-objects
+  * `--page-size` - pagination size
+  * `--max-items` - how many items to output
+
 # Tricky questions
 
 - You got an encoded error message, how to decode it?
     - `aws sts decode-authorization-message --encoded-message
 - AWS WAF - service to protect against common web exploits and bots that can affect availability, compromise security, or consume excessive resources.
+
+# Deployment section
+
+### Cloud computing deployment models
+
+* On-premises - hosting hardware in companies own data centers
+* Cloud - on-demand delivery of IT resources over the internet with primarily pay-as-you-go pricing
+* Hybrid is a way to connect infrastructure and applications between cloud-based resources and existing resources that are not located in the cloud.
+* 
