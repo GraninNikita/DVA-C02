@@ -132,9 +132,10 @@ AWS manages encryption - **default**
 #### EXAM Security
 
 - if on-premises needs to have access - create a programmatic access user
-- GenerateDataKeyWithoutPlainText - generates not immediately DEK
+- `GenerateDataKeyWithoutPlainText` - generates not immediately DEK
 - CloudHSM - hardware security modules
 - Throttling: use DEK caching or contact AWS to increase, or through API
+- `GenerateDataKey` - API command to generate a data key for each file to encrypt them
 
 # AWS Global Infrastructure
 
@@ -161,11 +162,13 @@ AWS manages encryption - **default**
     - It Can be considered as a different partition key + sort key
     - No limitations of the size
     - Only eventual consistency is supported.
+    - **has its own provisioned throughput settings for read and write activity that are separate from those of the table.**
 - Local secondary index.
     - Contains the same partition key but different sort key
     - Limitation up to 10 GB per partition
     - It can be only created on table creation
     - Maximum 5 LSI per table
+    - **shares provisioned throughput settings for read and write activity with the table it is indexing**
 
 - WCU and RCU
     - Read Capacity Units (RCU):
@@ -393,17 +396,34 @@ AWS manages encryption - **default**
 # Cloudwatch
 
 * It does not track memory utilization by default. It is recommended to create a custom metric to do it.
+* When you create an alarm, you specify three settings to enable CloudWatch to evaluate when to change the alarm state:
+
+* **Period** is the length of time to use to evaluate the metric or expression to create each individual data point for an alarm. It is expressed in seconds.
+
+* **Evaluation Periods** is the number of the most recent periods, or data points, to evaluate when determining alarm state.
+
+* **Datapoints to Alarm** is the number of data points within the Evaluation Periods that must be breaching to cause the alarm to go to the ALARM state. The breaching
+  data
+  points don't have to be consecutive, but they must all be within the last number of data points equal to Evaluation Period.
 
 # S3
+
 * aws s3api list-objects
-  * `--page-size` - pagination size
-  * `--max-items` - how many items to output
+    * `--page-size` - pagination size
+    * `--max-items` - how many items to output
+
+# Step functions
+
+* `waitForTaskToken` - Wait for Callback
 
 # Tricky questions
 
 - You got an encoded error message, how to decode it?
     - `aws sts decode-authorization-message --encoded-message
 - AWS WAF - service to protect against common web exploits and bots that can affect availability, compromise security, or consume excessive resources.
+- Amazon ElastiCache
+    - for Memcached - **multithread support**
+    - for Redis - usually **single-threaded**
 
 # Deployment section
 
@@ -412,4 +432,7 @@ AWS manages encryption - **default**
 * On-premises - hosting hardware in companies own data centers
 * Cloud - on-demand delivery of IT resources over the internet with primarily pay-as-you-go pricing
 * Hybrid is a way to connect infrastructure and applications between cloud-based resources and existing resources that are not located in the cloud.
-* 
+*
+
+ECS stopping container and deregistering - When a container instance is terminated in the stopped state, the container instance is not automatically deregistered from the
+cluster.
