@@ -1,3 +1,22 @@
+### EC2
+
+* EC2 User data script - only run once at the instance first start, runs with the root user
+* Instance types
+  * General Purpose
+  * Compute Optimized - compute-intensive tasks that require high performance processors
+  * Memory Optimized - process large data sets in memory
+  * Storage Optimized - high, sequential read and write access to large data sets on local storage
+* Security Groups - only allow rules
+
+### EBS
+
+* An EBS (Elastic Block Store) - network drive, there might be latency, can be detacthed and attached to another EC2
+* Have capacity (GB size and IOPS)
+* There is also Delete on Termination attribute - you can protect EBS from removal when EC2 is terminated
+
+### Auto Scaling Group
+* There is a cooldown period - 300 seconds by default, there will be no launch/terminate in ASG to stabilize metrics
+
 ### STS—Security Token Service
 
 Limited and temporary access to AWS (up to 1 hour)
@@ -274,6 +293,7 @@ AWS manages encryption - **default**
   from the source IP in the IP packet. The client IP that is recorded for a forwarded request can be forged, so it should not be trusted.
 - `AWSXRayDaemonWriteAccess` role Elastic Beanstalk uses it for the X-Ray daemon to upload data to X-Ray
 - listens for traffic on **UDP port 2000**
+- The `X-Forwarded-Port` header is used to represent the port number used by the client for the request.
 
 # Athena
 
@@ -411,6 +431,9 @@ AWS manages encryption - **default**
 * aws s3api list-objects
     * `--page-size` - pagination size
     * `--max-items` - how many items to output
+* Encryption
+  * SSE-S3 - must set `x-amz-server-side-encryption": "AES256`
+  * SSE-KMS - `x-amz-server-side-encryption": "aws:kms`
 
 # Step functions
 
